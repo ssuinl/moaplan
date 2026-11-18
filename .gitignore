@@ -1,0 +1,18 @@
+# 비밀
+.env
+backend/.env
+backend/data/credentials.json
+backend/data/token.json
+# 실행 중 생기는 데이터
+backend/data/*.db
+backend/data/chroma/
+# 파이썬
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+# 제출 제외
+reference/
+_to_delete/
+.vscode/

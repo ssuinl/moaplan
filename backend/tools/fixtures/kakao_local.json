@@ -1,0 +1,70 @@
+{
+ "강남 가온은행": [
+  {
+   "place_name": "가온은행 강남역지점",
+   "address_name": "서울 강남구 역삼동 825",
+   "road_address_name": "서울 강남구 강남대로 390",
+   "phone": "02-000-0001",
+   "place_url": "http://place.map.kakao.com/900001",
+   "category_name": "금융,보험 > 금융서비스 > 은행",
+   "x": "127.0276",
+   "y": "37.4979",
+   "distance": "120",
+   "id": "900001"
+  },
+  {
+   "place_name": "가온은행 역삼지점",
+   "address_name": "서울 강남구 역삼동 736",
+   "road_address_name": "서울 강남구 테헤란로 152",
+   "phone": "02-000-0002",
+   "place_url": "http://place.map.kakao.com/900002",
+   "category_name": "금융,보험 > 금융서비스 > 은행",
+   "x": "127.0276",
+   "y": "37.4979",
+   "distance": "640",
+   "id": "900002"
+  }
+ ],
+ "강남 나래은행": [
+  {
+   "place_name": "나래은행 강남대로지점",
+   "address_name": "서울 강남구 역삼동 821",
+   "road_address_name": "서울 강남구 강남대로 382",
+   "phone": "02-000-0003",
+   "place_url": "http://place.map.kakao.com/900003",
+   "category_name": "금융,보험 > 금융서비스 > 은행",
+   "x": "127.0276",
+   "y": "37.4979",
+   "distance": "210",
+   "id": "900003"
+  }
+ ],
+ "강남 바다은행": [
+  {
+   "place_name": "바다은행 강남중앙지점",
+   "address_name": "서울 서초구 서초동 1306",
+   "road_address_name": "서울 서초구 강남대로 465",
+   "phone": "02-000-0004",
+   "place_url": "http://place.map.kakao.com/900004",
+   "category_name": "금융,보험 > 금융서비스 > 은행",
+   "x": "127.0276",
+   "y": "37.4979",
+   "distance": "330",
+   "id": "900004"
+  }
+ ],
+ "역삼 다솜은행": [
+  {
+   "place_name": "다솜은행 역삼역지점",
+   "address_name": "서울 강남구 역삼동 642",
+   "road_address_name": "서울 강남구 테헤란로 211",
+   "phone": "02-000-0005",
+   "place_url": "http://place.map.kakao.com/900005",
+   "category_name": "금융,보험 > 금융서비스 > 은행",
+   "x": "127.0276",
+   "y": "37.4979",
+   "distance": "90",
+   "id": "900005"
+  }
+ ]
+}

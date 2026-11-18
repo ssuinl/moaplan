@@ -1,0 +1,124 @@
+{
+ "StatisticSearch": {
+  "list_total_count": 13,
+  "row": [
+   {
+    "STAT_CODE": "901Y009",
+    "STAT_NAME": "4.2.1. 소비자물가지수",
+    "ITEM_CODE1": "0",
+    "ITEM_NAME1": "총지수",
+    "UNIT_NAME": "2020=100",
+    "TIME": "202510",
+    "DATA_VALUE": "116.20"
+   },
+   {
+    "STAT_CODE": "901Y009",
+    "STAT_NAME": "4.2.1. 소비자물가지수",
+    "ITEM_CODE1": "0",
+    "ITEM_NAME1": "총지수",
+    "UNIT_NAME": "2020=100",
+    "TIME": "202511",
+    "DATA_VALUE": "116.35"
+   },
+   {
+    "STAT_CODE": "901Y009",
+    "STAT_NAME": "4.2.1. 소비자물가지수",
+    "ITEM_CODE1": "0",
+    "ITEM_NAME1": "총지수",
+    "UNIT_NAME": "2020=100",
+    "TIME": "202512",
+    "DATA_VALUE": "116.50"
+   },
+   {
+    "STAT_CODE": "901Y009",
+    "STAT_NAME": "4.2.1. 소비자물가지수",
+    "ITEM_CODE1": "0",
+    "ITEM_NAME1": "총지수",
+    "UNIT_NAME": "2020=100",
+    "TIME": "202601",
+    "DATA_VALUE": "116.95"
+   },
+   {
+    "STAT_CODE": "901Y009",
+    "STAT_NAME": "4.2.1. 소비자물가지수",
+    "ITEM_CODE1": "0",
+    "ITEM_NAME1": "총지수",
+    "UNIT_NAME": "2020=100",
+    "TIME": "202602",
+    "DATA_VALUE": "117.20"
+   },
+   {
+    "STAT_CODE": "901Y009",
+    "STAT_NAME": "4.2.1. 소비자물가지수",
+    "ITEM_CODE1": "0",
+    "ITEM_NAME1": "총지수",
+    "UNIT_NAME": "2020=100",
+    "TIME": "202603",
+    "DATA_VALUE": "117.30"
+   },
+   {
+    "STAT_CODE": "901Y009",
+    "STAT_NAME": "4.2.1. 소비자물가지수",
+    "ITEM_CODE1": "0",
+    "ITEM_NAME1": "총지수",
+    "UNIT_NAME": "2020=100",
+    "TIME": "202604",
+    "DATA_VALUE": "117.45"
+   },
+   {
+    "STAT_CODE": "901Y009",
+    "STAT_NAME": "4.2.1. 소비자물가지수",
+    "ITEM_CODE1": "0",
+    "ITEM_NAME1": "총지수",
+    "UNIT_NAME": "2020=100",
+    "TIME": "202605",
+    "DATA_VALUE": "117.60"
+   },
+   {
+    "STAT_CODE": "901Y009",
+    "STAT_NAME": "4.2.1. 소비자물가지수",
+    "ITEM_CODE1": "0",
+    "ITEM_NAME1": "총지수",
+    "UNIT_NAME": "2020=100",
+    "TIME": "202606",
+    "DATA_VALUE": "117.70"
+   },
+   {
+    "STAT_CODE": "901Y009",
+    "STAT_NAME": "4.2.1. 소비자물가지수",
+    "ITEM_CODE1": "0",
+    "ITEM_NAME1": "총지수",
+    "UNIT_NAME": "2020=100",
+    "TIME": "202607",
+    "DATA_VALUE": "117.95"
+   },
+   {
+    "STAT_CODE": "901Y009",
+    "STAT_NAME": "4.2.1. 소비자물가지수",
+    "ITEM_CODE1": "0",
+    "ITEM_NAME1": "총지수",
+    "UNIT_NAME": "2020=100",
+    "TIME": "202608",
+    "DATA_VALUE": "118.10"
+   },
+   {
+    "STAT_CODE": "901Y009",
+    "STAT_NAME": "4.2.1. 소비자물가지수",
+    "ITEM_CODE1": "0",
+    "ITEM_NAME1": "총지수",
+    "UNIT_NAME": "2020=100",
+    "TIME": "202609",
+    "DATA_VALUE": "118.30"
+   },
+   {
+    "STAT_CODE": "901Y009",
+    "STAT_NAME": "4.2.1. 소비자물가지수",
+    "ITEM_CODE1": "0",
+    "ITEM_NAME1": "총지수",
+    "UNIT_NAME": "2020=100",
+    "TIME": "202610",
+    "DATA_VALUE": "118.55"
+   }
+  ]
+ }
+}
