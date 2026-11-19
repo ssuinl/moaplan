@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>모아플랜 — 목표 저축 플래너</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="vendor/vue.global.prod.js"></script>
+</head>
+<body>
+<div id="app" v-cloak>
+  <header class="bar">
+    <a href="#" class="brand" title="첫 화면으로 (새 대화)" @click.prevent="goHome()">
+      <span class="brand-mark" aria-hidden="true">모</span>
+      <div>
+        <strong>모아플랜</strong>
+        <span class="brand-sub">금감원 공시 금리로 계산하는 저축 계획</span>
+      </div>
+    </a>
+    <nav class="tabs" role="tablist">
+      <button v-for="t in tabs" :key="t.id" role="tab" :aria-selected="tab===t.id" :class="{on: tab===t.id}"
+              @click="openTab(t.id)">{{ t.label }}<span v-if="t.id==='plans' && plans.length" class="count">{{ plans.length }}</span></button>
+    </nav>
+    <div class="status">
+      <label class="mode" title="심화: Planner·Worker 분리 실행">
+        <input type="checkbox" v-model="pw"> 역할 분리 실행
+      </label>
+      <span v-for="k in status.keys" :key="k.name" class="key" :class="{ok: k.configured || status.fake_mode}"
+            :title="k.label + (k.configured ? ' 키 설정됨' : (status.fake_mode ? ' 연습 데이터 사용' : ' 키 없음'))">{{ k.label.split(' ')[0] }}</span>
+      <span v-if="status.fake_mode" class="fake">연습 데이터</span>
+    </div>
+  </header>
+
+  <div v-if="missingKeys.length && !status.fake_mode" class="notice" role="status">
+    {{ missingKeys.join(', ') }} 키가 없어 해당 기능이 동작하지 않습니다. backend/.env 에 키를 넣고 서버를 다시 시작하세요.
+  </div>
+
+  <!-- 대화 -->
+  <main v-show="tab==='chat'" class="chat-layout" :class="{'ledger-off': !showLedger}">
+    <section class="chat" aria-label="대화">
+      <div class="thread" ref="thread">
+        <div v-if="!messages.length" class="empty">
+          <h1>얼마를, 언제까지 모을지 말해 주세요.</h1>
+          <p>공시 금리로 만기 수령액을 계산하고, 조건을 못 맞추면 다른 상품 조합을 다시 찾아요.</p>
+          <div class="samples">
+            <button v-for="s in samples" :key="s" @click="send(s)">{{ s }}</button>
+          </div>
+        </div>
+        <article v-for="(m, i) in messages" :key="i" :class="['msg', m.role]">
+          <p v-if="m.role==='user'" class="bubble">{{ m.text }}</p>
+          <div v-else class="reply">
+            <p v-if="m.view.summary" class="summary">{{ m.view.summary }}</p>
+
+            <div v-if="m.view.conditions && m.open" class="conds">
+              <div v-for="(g, name) in m.view.conditions" :key="name" class="cond-group">
+                <span class="cond-name">{{ name }}</span>
+                <span v-for="(v, k) in g" :key="k" class="chip" :class="{blank: v===null || v===undefined || (Array.isArray(v) && !v.length)}">
+                  {{ k }} <b>{{ fmtSlot(k, v) }}</b>
+                </span>
+              </div>
+            </div>
+
+            <table v-if="m.view.comparison && m.view.comparison.length" class="compare">
+              <caption>기간별 비교 (기간마다 매달 가장 적게 넣어도 되는 적금)</caption>
+              <thead><tr><th>기간</th><th>상품</th><th>금리</th><th>필요 월 납입</th><th>예산 안</th></tr></thead>
+              <tbody><tr v-for="c in m.view.comparison" :key="c.months">
+                <td>{{ c.months }}개월</td><td>{{ c.label }}</td><td>{{ c.rate }}%</td>
+                <td class="num">{{ won(c.required_monthly) }}</td><td :class="c.ok ? 'ok' : 'no'">{{ c.ok ? '가능' : '초과' }}</td>
+              </tr></tbody>
+            </table>
+            <ol v-if="m.view.recommendations && m.view.recommendations.length" class="recs">
+              <li v-for="r in m.view.recommendations" v-show="r.rank === 1 || m.open" :key="r.rank" class="slip">
+                <div class="slip-head">
+                  <span class="rank">{{ r.rank }}</span>
+                  <div class="slip-title">{{ r.label }}</div>
+                  <div class="slip-total"><small>세후 예상</small>{{ won(r.expected_total) }}</div>
+                </div>
+                <dl class="slip-grid">
+                  <div><dt>매달 넣을 돈</dt><dd>{{ won(r.monthly_payment) }}</dd></div>
+                  <div v-if="r.deposit"><dt>목돈 예금</dt><dd>{{ won(r.deposit.principal) }}</dd></div>
+                  <div><dt>우대 모두 충족 시</dt><dd>{{ r.best_case_total ? won(r.best_case_total) : '—' }}</dd></div>
+                  <div><dt>물가 뺀 실질 수익률</dt><dd :class="{neg: r.real_rate < 0}">{{ r.real_rate === null ? '확인 못 함' : r.real_rate + '%p' }}</dd></div>
+                </dl>
+                <p v-if="r.bonus_applied && r.bonus_applied.length" class="bonus">
+                  우대 반영 {{ r.base_rate_raw }}% → <b>{{ r.rate_used }}%</b>
+                  <span v-for="b in r.bonus_applied" :key="b.text" class="bonus-item" :title="b.text">{{ b.cond }} +{{ b.rate }}%p</span>
+                </p>
+                <details class="calc">
+                  <summary>계산 근거 보기</summary>
+                  <p v-for="b in (r.bonus_applied || [])" :key="'t' + b.text" class="prod"><small>우대 근거: {{ b.text }}</small></p>
+                  <p v-if="r.saving">{{ r.saving.formula }} = <b>{{ won(r.saving.maturity_amount) }}</b> (세전 이자 {{ won(r.saving.interest_pre_tax) }}, 세금 {{ won(r.saving.tax) }})</p>
+                  <p v-if="r.deposit">{{ r.deposit.formula }} = <b>{{ won(r.deposit.maturity_amount) }}</b></p>
+                  <p v-for="p in [r.saving_product, r.deposit_product].filter(Boolean)" :key="p.fin_prdt_cd" class="prod">
+                    {{ p.bank }} {{ p.product }} · 기본 {{ p.base_rate }}% / 최고 {{ p.max_rate }}% · {{ p.interest_type==='M' ? '복리' : '단리' }}
+                    <span v-if="p.max_limit"> · 월 한도 {{ won(p.max_limit) }}</span> · 가입 {{ p.join_way }}
+                    <br><small>우대조건: {{ p.special_condition || '없음' }} (공시 {{ p.disclosure_month }})</small>
+                  </p>
+                </details>
+                <p v-for="w in r.warnings" :key="w" class="warn">{{ w }}</p>
+              </li>
+            </ol>
+
+            <div v-if="m.open && m.view.branches && Object.keys(m.view.branches).length" class="branches">
+              <h3>가까운 영업점</h3>
+              <div v-for="(b, bank) in m.view.branches" :key="bank">
+                <p v-if="b.error" class="muted">{{ bank }}: {{ b.error }}</p>
+                <ul v-else>
+                  <li v-for="x in b.branches" :key="x.url"><a :href="x.url" target="_blank" rel="noopener">{{ x.name }}</a> {{ x.address }}</li>
+                </ul>
+              </div>
+              <p class="muted small">지점별 판매 상품은 확인하지 않았습니다.</p>
+            </div>
+
+            <div v-if="m.open && m.view.conditional && m.view.conditional.length" class="cond-list">
+              <h3>자격이 되면 고려할 상품</h3>
+              <p v-for="c in m.view.conditional" :key="c.label">{{ c.label }} — {{ c.unjudged.join(', ') }}</p>
+            </div>
+
+            <details v-if="m.open && m.view.excluded && m.view.excluded.length" class="excluded">
+              <summary>제외한 후보 {{ m.view.excluded.length }}개와 이유</summary>
+              <p v-for="x in m.view.excluded" :key="x.product + x.reason"><b>{{ x.product }}</b> {{ x.reason }}</p>
+            </details>
+
+            <div v-if="m.view.hits" class="sources">
+              <p v-for="h in m.view.hits.slice(0,2)" :key="h.url + h.section">
+                <a :href="h.url" target="_blank" rel="noopener">{{ h.source }}</a> <span class="muted">확인 {{ h.checked }}</span>
+              </p>
+            </div>
+
+            <p v-for="n in (m.view.notes || bodyLines(m))" :key="n" :class="n.startsWith('이 결과는') ? 'disclaimer' : 'note'">{{ n }}</p>
+            <button v-if="moreLabel(m)" type="button" class="more" :aria-expanded="!!m.open" @click="m.open = !m.open">
+              {{ m.open ? '간단히 보기' : '자세히 보기 — ' + moreLabel(m) }}</button>
+            <p class="meta">{{ m.stats.ms }}ms · LLM {{ m.stats.llm_calls }}회 · Tool {{ m.stats.tool_calls }}회<span v-if="m.stats.replans" class="replan-mark"> · 재계획 {{ m.stats.replans }}회</span> · {{ m.mode==='pw' ? '역할 분리' : '단일 Agent' }}
+              · <button type="button" class="linkish" @click="showLedger = true">실행 과정 보기</button></p>
+          </div>
+        </article>
+        <article v-if="busy" class="msg assistant"><p class="working">{{ liveStep }}</p></article>
+      </div>
+      <form class="composer" @submit.prevent="send()">
+        <label for="q" class="sr">메시지</label>
+        <textarea id="q" v-model="input" rows="2" :disabled="busy" placeholder="예: 1년 안에 1000만원, 월 70만원까지 넣을 수 있어"
+                  @keydown.enter.exact.prevent="send()"></textarea>
+        <div class="composer-actions">
+          <button type="submit" :disabled="busy || !input.trim()">보내기</button>
+          <button v-if="messages.length" type="button" class="ghost" :disabled="busy" @click="goHome()"
+                  title="조건 기억과 대화를 비우고 첫 화면으로">새 대화</button>
+        </div>
+      </form>
+    </section>
+
+    <button v-if="!showLedger" type="button" class="ledger-tab" @click="showLedger = true"
+            title="분석 → 계획 → Tool 호출 → 판단 → 응답 순서 보기">
+      실행 과정<span v-if="liveEvents.length"> · Tool {{ liveTools }}회</span><span v-if="liveReplans" class="replan-mark"> · 재계획 {{ liveReplans }}</span>
+    </button>
+    <aside v-show="showLedger" class="ledger" aria-label="실행 기록">
+      <div class="ledger-head">
+        <h2>이번 요청의 실행 기록</h2>
+        <span class="muted small" v-if="sessionId">대화 {{ sessionId }}</span>
+        <button type="button" class="ghost close" @click="showLedger = false" aria-label="실행 기록 접기">접기</button>
+      </div>
+      <p v-if="!liveEvents.length" class="muted ledger-empty">요청을 보내면 분석 → 계획 → Tool 호출 → 판단 → 응답 순서가 여기에 한 줄씩 찍힙니다.</p>
+      <ol class="rows">
+        <li v-for="e in visibleEvents" :key="e.seq" :class="['row', 'ev-' + e.event.replace('.', '-'), {bad: e.payload.ok===false}]">
+          <span class="seq">{{ String(e.seq).padStart(3, '0') }}</span>
+          <span class="what">{{ eventLabel(e) }}</span>
+          <span class="detail">{{ eventDetail(e) }}</span>
+          <span class="ms">{{ e.payload.ms !== undefined ? e.payload.ms + 'ms' : '' }}</span>
+          <span v-if="e.event==='replan'" class="stamp">재계획 {{ e.payload.n }}</span>
+        </li>
+      </ol>
+      <label class="small toggle"><input type="checkbox" v-model="showAll"> 단계 진입·종료까지 모두 보기</label>
+    </aside>
+  </main>
+
+  <!-- 계획 관리 -->
+  <main v-show="tab==='plans'" class="page">
+    <div class="page-head">
+      <h1>저장한 계획</h1>
+      <p class="muted">대화에서 "1번으로 저장해줘"라고 하면 여기에 쌓입니다. 날짜와 금액을 고치면 바로 반영돼요.</p>
+    </div>
+    <p v-if="planNotice" class="notice inline" role="status">{{ planNotice }}</p>
+    <p v-if="!plans.length" class="empty-small">아직 저장한 계획이 없습니다. 대화 탭에서 추천을 받아 저장해 보세요.</p>
+    <div class="plan-table" v-else>
+      <div class="plan-row header">
+        <span>계획</span><span>시작일</span><span>기간</span><span>납입일</span><span>매달</span><span>세후 예상</span><span></span>
+      </div>
+      <div v-for="p in plans" :key="p.plan_id" class="plan-row">
+        <span><b>#{{ p.plan_id }}</b> {{ p.title }}<br><small class="muted">목표 {{ won(p.goal_amount) }} · 만기 {{ p.maturity_date }} · 만든 날 {{ p.created_at }}</small></span>
+        <template v-if="editing===p.plan_id">
+          <input type="date" v-model="draft.start_date" aria-label="시작일">
+          <input type="number" min="1" max="60" v-model.number="draft.term_months" aria-label="기간(개월)">
+          <input type="number" min="1" max="31" v-model.number="draft.payment_day" aria-label="납입일">
+          <input type="number" min="0" step="10000" v-model.number="draft.monthly_amount" aria-label="매달 금액">
+          <span>{{ won(p.expected_amount) }}</span>
+          <span class="actions"><button @click="savePlan(p)">저장</button><button class="ghost" @click="editing=null">취소</button></span>
+        </template>
+        <template v-else>
+          <span>{{ p.start_date }}</span><span>{{ p.term_months }}개월</span><span>매월 {{ p.payment_day }}일</span>
+          <span>{{ won(p.monthly_amount) }}</span><span>{{ won(p.expected_amount) }}</span>
+          <span class="actions" v-if="confirming !== 'plan:' + p.plan_id"><button class="ghost" @click="edit(p)">수정</button><button class="ghost danger" @click="confirming = 'plan:' + p.plan_id">삭제</button></span>
+          <span class="actions confirm" v-else role="alert">일정도 지워져요
+            <button class="danger-solid" @click="removePlan(p)">삭제</button><button class="ghost" @click="confirming = null">취소</button></span>
+        </template>
+      </div>
+    </div>
+    <div class="page-head second">
+      <h2>캘린더에 잡힌 납입·만기</h2>
+      <p class="muted">대화에서 "캘린더에 등록해줘"라고 하면 계획 번호만으로 일정이 만들어집니다. 새 계획을 세울 때 이미 나가는 납입액을 월 예산에서 뺍니다.</p>
+    </div>
+    <p v-if="!calendar.events || !calendar.events.length" class="empty-small">등록된 일정이 없습니다.</p>
+    <ul v-else class="cal">
+      <li v-for="e in calendar.events" :key="e.event_id"><span :class="['dot', e.kind]"></span>{{ e.start_date }}<span v-if="e.until_date"> ~ {{ e.until_date }}</span> {{ e.title }}</li>
+    </ul>
+    <p v-if="calendar.monthly_committed" class="muted">매달 나가는 납입 합계 {{ won(calendar.monthly_committed) }}</p>
+  </main>
+
+  <!-- 실행 기록 -->
+  <main v-show="tab==='logs'" class="page logs-layout">
+    <section>
+      <div class="page-head">
+        <h1>실행 기록</h1>
+        <p class="muted">로깅 Agent 가 대화별로 저장한 원본 이벤트입니다. 기록은 고칠 수 없고 지울 수만 있어요.</p>
+      </div>
+      <p v-if="!sessions.length" class="empty-small">저장된 기록이 없습니다.</p>
+      <ul class="sessions">
+        <li v-for="s in sessions" :key="s.session_id" :class="{on: logSession===s.session_id}">
+          <button class="session-btn" @click="openLog(s.session_id)" :title="s.title">
+            <span class="s-title">{{ s.title || s.session_id }}</span>
+            <span class="s-meta"><span class="muted">{{ shortTime(s.started_at) }} · 요청 {{ s.run_count }}건</span>
+              <span v-if="s.last_verdict" :class="['verdict', s.last_verdict]">{{ verdictLabel(s.last_verdict) }}</span></span>
+          </button>
+        </li>
+      </ul>
+    </section>
+    <section v-if="!logSession && sessions.length" class="log-detail log-empty">
+      <p>왼쪽에서 대화를 고르면 분석 → 계획 → Tool 호출 → 판단 → 응답 기록과 이상 징후 판정이 여기에 나와요.</p>
+    </section>
+    <section v-if="logSession" class="log-detail">
+      <div class="page-head row">
+        <h2>{{ (sessions.find(x => x.session_id === logSession) || {}).title || logSession }} <small class="muted">대화 {{ logSession }}</small></h2>
+        <button v-if="confirming !== 'log:' + logSession" class="ghost danger" @click="confirming = 'log:' + logSession">이 기록 지우기</button>
+        <span v-else class="actions confirm" role="alert">되돌릴 수 없어요.
+          <button class="danger-solid" @click="deleteLog(logSession)">지우기</button><button class="ghost" @click="confirming = null">취소</button></span>
+      </div>
+      <div v-for="a in anomalies" :key="a.run_id" :class="['report', a.verdict]">
+        <b>요청 {{ a.run_id }} · {{ verdictLabel(a.verdict) }}</b>
+        <span v-if="a.stats"> — Tool {{ a.stats.tool_calls }}회, 재계획 {{ a.stats.replans }}회, LLM {{ a.stats.llm_calls }}회</span>
+        <ul v-if="a.findings.length"><li v-for="f in a.findings" :key="JSON.stringify(f)">{{ findingLabel(f) }}</li></ul>
+        <p v-if="a.diagnosis" class="diag"><b>진단 (LLM, 경고가 난 세션만)</b><br>{{ a.diagnosis }}</p>
+      </div>
+      <ol class="rows full">
+        <li v-for="e in logRows" :key="e.run_id + e.seq" :class="['row', 'ev-' + e.event.replace('.', '-'), {bad: e.payload.ok===false}]">
+          <span class="seq">{{ String(e.seq).padStart(3, '0') }}</span>
+          <span class="what">{{ eventLabel(e) }}</span>
+          <span class="detail">{{ eventDetail(e) }}</span>
+          <span class="ms">{{ e.payload.ms !== undefined ? e.payload.ms + 'ms' : '' }}</span>
+          <span v-if="e.event==='replan'" class="stamp">재계획 {{ e.payload.n }}</span>
+        </li>
+      </ol>
+    </section>
+  </main>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
