@@ -1,0 +1,518 @@
+[
+ {
+  "session_id": "6c88d09d9b",
+  "run_id": "7907fc13",
+  "seq": 1,
+  "event": "session.start",
+  "ts": "2026-11-19T13:07:13.922",
+  "payload": {
+   "user": "1년 안에 1000만원 모으고 싶어. 월 90만원까지 넣을 수 있어",
+   "mode": "single",
+   "worker_llm": true,
+   "llm": "fake-rule-llm"
+  }
+ },
+ {
+  "session_id": "6c88d09d9b",
+  "run_id": "7907fc13",
+  "seq": 2,
+  "event": "step.enter",
+  "ts": "2026-11-19T13:07:13.931",
+  "payload": {
+   "step": "analyze"
+  }
+ },
+ {
+  "session_id": "6c88d09d9b",
+  "run_id": "7907fc13",
+  "seq": 3,
+  "event": "llm.call",
+  "ts": "2026-11-19T13:07:13.936",
+  "payload": {
+   "purpose": "analyze",
+   "model": "fake-rule-llm",
+   "ms": 2
+  }
+ },
+ {
+  "session_id": "6c88d09d9b",
+  "run_id": "7907fc13",
+  "seq": 4,
+  "event": "decision",
+  "ts": "2026-11-19T13:07:13.939",
+  "payload": {
+   "by": "llm",
+   "kind": "intent",
+   "value": "plan",
+   "reason": "목표 금액·기간·납입 조건으로 저축 계획을 요청"
+  }
+ },
+ {
+  "session_id": "6c88d09d9b",
+  "run_id": "7907fc13",
+  "seq": 5,
+  "event": "step.exit",
+  "ts": "2026-11-19T13:07:13.940",
+  "payload": {
+   "step": "analyze",
+   "ms": 7,
+   "output": {
+    "intent": "plan",
+    "reason": "목표 금액·기간·납입 조건으로 저축 계획을 요청",
+    "conditions": {
+     "기준 조건": {
+      "목표 금액": 10000000,
+      "기간(개월)": 12
+     },
+     "선호 조건": {
+      "상품 선호": null,
+      "저축은행 허용": null,
+      "영업점 지역": null
+     },
+     "제약 조건": {
+      "월 납입 상한": 900000,
+      "지금 가진 목돈": null
+     }
+    },
+    "changed": [
+     "goal_amount",
+     "months",
+     "monthly_budget"
+    ],
+    "missing": []
+   }
+  }
+ },
+ {
+  "session_id": "6c88d09d9b",
+  "run_id": "7907fc13",
+  "seq": 6,
+  "event": "step.enter",
+  "ts": "2026-11-19T13:07:13.942",
+  "payload": {
+   "step": "plan"
+  }
+ },
+ {
+  "session_id": "6c88d09d9b",
+  "run_id": "7907fc13",
+  "seq": 7,
+  "event": "plan",
+  "ts": "2026-11-19T13:07:13.944",
+  "payload": {
+   "version": 1,
+   "intent": "plan",
+   "reason": "조건으로 후보 조회 → 상세 → 물가 · 기존 일정 순서",
+   "tasks": [
+    {
+     "id": "p1.t1",
+     "tool": "search_savings_products",
+     "args": {
+      "product_type": "saving",
+      "term_months": 12,
+      "fin_group": "bank",
+      "limit": 12
+     },
+     "expand": null,
+     "fixed": [
+      "product_type",
+      "term_months",
+      "fin_group"
+     ]
+    },
+    {
+     "id": "p1.t2",
+     "tool": "get_product_detail",
+     "args": {
+      "term_months": 12
+     },
+     "expand": {
+      "from": "p1.t1",
+      "top": 4,
+      "skip": 0
+     },
+     "fixed": [
+      "term_months",
+      "product_type"
+     ]
+    },
+    {
+     "id": "p1.t3",
+     "tool": "get_economic_indicators",
+     "args": {},
+     "expand": null,
+     "fixed": []
+    },
+    {
+     "id": "p1.t4",
+     "tool": "get_schedule",
+     "args": {},
+     "expand": null,
+     "fixed": []
+    }
+   ]
+  }
+ },
+ {
+  "session_id": "6c88d09d9b",
+  "run_id": "7907fc13",
+  "seq": 8,
+  "event": "step.exit",
+  "ts": "2026-11-19T13:07:13.945",
+  "payload": {
+   "step": "plan",
+   "ms": 1,
+   "output": {
+    "tasks": 4,
+    "reason": "조건으로 후보 조회 → 상세 → 물가 · 기존 일정 순서"
+   }
+  }
+ },
+ {
+  "session_id": "6c88d09d9b",
+  "run_id": "7907fc13",
+  "seq": 9,
+  "event": "step.enter",
+  "ts": "2026-11-19T13:07:13.947",
+  "payload": {
+   "step": "execute"
+  }
+ },
+ {
+  "session_id": "6c88d09d9b",
+  "run_id": "7907fc13",
+  "seq": 10,
+  "event": "tool.call",
+  "ts": "2026-11-19T13:07:13.949",
+  "payload": {
+   "task": "p1.t1",
+   "tool": "search_savings_products",
+   "args": {
+    "product_type": "saving",
+    "term_months": 12,
+    "fin_group": "bank",
+    "limit": 12
+   },
+   "retry_of": null,
+   "kind": "external"
+  }
+ },
+ {
+  "session_id": "6c88d09d9b",
+  "run_id": "7907fc13",
+  "seq": 11,
+  "event": "tool.result",
+  "ts": "2026-11-19T13:07:13.951",
+  "payload": {
+   "task": "p1.t1",
+   "tool": "search_savings_products",
+   "ok": true,
+   "ms": 0,
+   "code": null,
+   "summary": "10개 상품 (12개월, bank)"
+  }
+ },
+ {
+  "session_id": "6c88d09d9b",
+  "run_id": "7907fc13",
+  "seq": 12,
+  "event": "tool.call",
+  "ts": "2026-11-19T13:07:13.953",
+  "payload": {
+   "task": "p1.t2",
+   "tool": "get_product_detail",
+   "args": {
+    "fin_prdt_cd": "SAV-D1",
+    "product_type": "saving",
+    "term_months": 12,
+    "fin_group": "bank"
+   },
+   "retry_of": null,
+   "kind": "external"
+  }
+ },
+ {
+  "session_id": "6c88d09d9b",
+  "run_id": "7907fc13",
+  "seq": 13,
+  "event": "tool.result",
+  "ts": "2026-11-19T13:07:13.955",
+  "payload": {
+   "task": "p1.t2",
+   "tool": "get_product_detail",
+   "ok": true,
+   "ms": 0,
+   "code": null,
+   "summary": "라온은행 라온 청년도약 적금 기본 4.0% / 최고 5.5%"
+  }
+ },
+ {
+  "session_id": "6c88d09d9b",
+  "run_id": "7907fc13",
+  "seq": 14,
+  "event": "tool.call",
+  "ts": "2026-11-19T13:07:13.956",
+  "payload": {
+   "task": "p1.t2",
+   "tool": "get_product_detail",
+   "args": {
+    "fin_prdt_cd": "SAV-F1",
+    "product_type": "saving",
+    "term_months": 12,
+    "fin_group": "bank"
+   },
+   "retry_of": null,
+   "kind": "external"
+  }
+ },
+ {
+  "session_id": "6c88d09d9b",
+  "run_id": "7907fc13",
+  "seq": 15,
+  "event": "tool.result",
+  "ts": "2026-11-19T13:07:13.958",
+  "payload": {
+   "task": "p1.t2",
+   "tool": "get_product_detail",
+   "ok": true,
+   "ms": 0,
+   "code": null,
+   "summary": "주식회사 바다은행 바다 급여 적금 기본 3.15% / 최고 4.05%"
+  }
+ },
+ {
+  "session_id": "6c88d09d9b",
+  "run_id": "7907fc13",
+  "seq": 16,
+  "event": "tool.call",
+  "ts": "2026-11-19T13:07:13.960",
+  "payload": {
+   "task": "p1.t2",
+   "tool": "get_product_detail",
+   "args": {
+    "fin_prdt_cd": "SAV-B1",
+    "product_type": "saving",
+    "term_months": 12,
+    "fin_group": "bank"
+   },
+   "retry_of": null,
+   "kind": "external"
+  }
+ },
+ {
+  "session_id": "6c88d09d9b",
+  "run_id": "7907fc13",
+  "seq": 17,
+  "event": "tool.result",
+  "ts": "2026-11-19T13:07:13.961",
+  "payload": {
+   "task": "p1.t2",
+   "tool": "get_product_detail",
+   "ok": true,
+   "ms": 0,
+   "code": null,
+   "summary": "나래은행 나래 목돈만들기 적금 기본 3.1% / 최고 3.8%"
+  }
+ },
+ {
+  "session_id": "6c88d09d9b",
+  "run_id": "7907fc13",
+  "seq": 18,
+  "event": "tool.call",
+  "ts": "2026-11-19T13:07:13.963",
+  "payload": {
+   "task": "p1.t2",
+   "tool": "get_product_detail",
+   "args": {
+    "fin_prdt_cd": "SAV-C1",
+    "product_type": "saving",
+    "term_months": 12,
+    "fin_group": "bank"
+   },
+   "retry_of": null,
+   "kind": "external"
+  }
+ },
+ {
+  "session_id": "6c88d09d9b",
+  "run_id": "7907fc13",
+  "seq": 19,
+  "event": "tool.result",
+  "ts": "2026-11-19T13:07:13.964",
+  "payload": {
+   "task": "p1.t2",
+   "tool": "get_product_detail",
+   "ok": true,
+   "ms": 0,
+   "code": null,
+   "summary": "다솜은행 다솜 월복리 적금 기본 3.0% / 최고 3.6%"
+  }
+ },
+ {
+  "session_id": "6c88d09d9b",
+  "run_id": "7907fc13",
+  "seq": 20,
+  "event": "tool.call",
+  "ts": "2026-11-19T13:07:13.965",
+  "payload": {
+   "task": "p1.t3",
+   "tool": "get_economic_indicators",
+   "args": {},
+   "retry_of": null,
+   "kind": "external"
+  }
+ },
+ {
+  "session_id": "6c88d09d9b",
+  "run_id": "7907fc13",
+  "seq": 21,
+  "event": "tool.result",
+  "ts": "2026-11-19T13:07:13.967",
+  "payload": {
+   "task": "p1.t3",
+   "tool": "get_economic_indicators",
+   "ok": true,
+   "ms": 0,
+   "code": null,
+   "summary": "물가 2.02% (202610), 기준금리 2.5%"
+  }
+ },
+ {
+  "session_id": "6c88d09d9b",
+  "run_id": "7907fc13",
+  "seq": 22,
+  "event": "tool.call",
+  "ts": "2026-11-19T13:07:13.968",
+  "payload": {
+   "task": "p1.t4",
+   "tool": "get_schedule",
+   "args": {},
+   "retry_of": null,
+   "kind": "local"
+  }
+ },
+ {
+  "session_id": "6c88d09d9b",
+  "run_id": "7907fc13",
+  "seq": 23,
+  "event": "tool.result",
+  "ts": "2026-11-19T13:07:13.970",
+  "payload": {
+   "task": "p1.t4",
+   "tool": "get_schedule",
+   "ok": true,
+   "ms": 0,
+   "code": null,
+   "summary": "일정 0건, 월 납입 0원"
+  }
+ },
+ {
+  "session_id": "6c88d09d9b",
+  "run_id": "7907fc13",
+  "seq": 24,
+  "event": "step.exit",
+  "ts": "2026-11-19T13:07:13.971",
+  "payload": {
+   "step": "execute",
+   "ms": 22,
+   "output": {
+    "ok_results": 7,
+    "fatal": null,
+    "cache_hits": 0
+   }
+  }
+ },
+ {
+  "session_id": "6c88d09d9b",
+  "run_id": "7907fc13",
+  "seq": 25,
+  "event": "step.enter",
+  "ts": "2026-11-19T13:07:13.973",
+  "payload": {
+   "step": "judge"
+  }
+ },
+ {
+  "session_id": "6c88d09d9b",
+  "run_id": "7907fc13",
+  "seq": 26,
+  "event": "judge",
+  "ts": "2026-11-19T13:07:13.977",
+  "payload": {
+   "passed": 2,
+   "failed": 1,
+   "unjudged": 1,
+   "best": "나래은행 나래 목돈만들기 적금",
+   "best_total": 10101489,
+   "rule": "세후 만기수령액 ≥ 목표 · 필요 월납입 ≤ 월예산(기존 납입 제외) · ≤ 상품 한도 · 가입제한 없음"
+  }
+ },
+ {
+  "session_id": "6c88d09d9b",
+  "run_id": "7907fc13",
+  "seq": 27,
+  "event": "step.exit",
+  "ts": "2026-11-19T13:07:13.979",
+  "payload": {
+   "step": "judge",
+   "ms": 3,
+   "output": {
+    "candidates": 4,
+    "passed": 2,
+    "failed": 1,
+    "unjudged": 1
+   }
+  }
+ },
+ {
+  "session_id": "6c88d09d9b",
+  "run_id": "7907fc13",
+  "seq": 28,
+  "event": "step.enter",
+  "ts": "2026-11-19T13:07:13.983",
+  "payload": {
+   "step": "respond"
+  }
+ },
+ {
+  "session_id": "6c88d09d9b",
+  "run_id": "7907fc13",
+  "seq": 29,
+  "event": "llm.call",
+  "ts": "2026-11-19T13:07:13.986",
+  "payload": {
+   "purpose": "compose",
+   "model": "fake-rule-llm",
+   "ms": 0
+  }
+ },
+ {
+  "session_id": "6c88d09d9b",
+  "run_id": "7907fc13",
+  "seq": 30,
+  "event": "step.exit",
+  "ts": "2026-11-19T13:07:13.991",
+  "payload": {
+   "step": "respond",
+   "ms": 5,
+   "output": {
+    "kind": "plan"
+   }
+  }
+ },
+ {
+  "session_id": "6c88d09d9b",
+  "run_id": "7907fc13",
+  "seq": 31,
+  "event": "session.end",
+  "ts": "2026-11-19T13:07:13.995",
+  "payload": {
+   "answer": "조건을 모두 만족하는 조합 2개를 찾았습니다. 가장 유리한 안은 나래은행 나래 목돈만들기 적금으로 만기에 약 10,101,489원(세후)을 받을 것으로 계산됩니다.\n\n이 결과는 금융감독원 공시 금리로 계산한 예상치이",
+   "ms": 72,
+   "llm_calls": 2,
+   "tool_calls": 7,
+   "cache_hits": 0,
+   "replans": 0
+  }
+ }
+]

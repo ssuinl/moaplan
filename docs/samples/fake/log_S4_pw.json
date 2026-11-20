@@ -1,0 +1,679 @@
+[
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 1,
+  "event": "session.start",
+  "ts": "2026-11-19T13:07:15.192",
+  "payload": {
+   "user": "2년 안에 1200만원 모으고 싶어. 월 50만원까지. 강남 근처",
+   "mode": "pw",
+   "worker_llm": true,
+   "llm": "fake-rule-llm"
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 2,
+  "event": "step.enter",
+  "ts": "2026-11-19T13:07:15.203",
+  "payload": {
+   "step": "analyze"
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 3,
+  "event": "llm.call",
+  "ts": "2026-11-19T13:07:15.205",
+  "payload": {
+   "purpose": "analyze",
+   "model": "fake-rule-llm",
+   "ms": 0
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 4,
+  "event": "decision",
+  "ts": "2026-11-19T13:07:15.207",
+  "payload": {
+   "by": "llm",
+   "kind": "intent",
+   "value": "plan",
+   "reason": "목표 금액·기간·납입 조건으로 저축 계획을 요청"
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 5,
+  "event": "step.exit",
+  "ts": "2026-11-19T13:07:15.209",
+  "payload": {
+   "step": "analyze",
+   "ms": 4,
+   "output": {
+    "intent": "plan",
+    "reason": "목표 금액·기간·납입 조건으로 저축 계획을 요청",
+    "conditions": {
+     "기준 조건": {
+      "목표 금액": 12000000,
+      "기간(개월)": 24
+     },
+     "선호 조건": {
+      "상품 선호": null,
+      "저축은행 허용": null,
+      "영업점 지역": "강남"
+     },
+     "제약 조건": {
+      "월 납입 상한": 500000,
+      "지금 가진 목돈": null
+     }
+    },
+    "changed": [
+     "goal_amount",
+     "months",
+     "monthly_budget",
+     "region"
+    ],
+    "missing": []
+   }
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 6,
+  "event": "step.enter",
+  "ts": "2026-11-19T13:07:15.211",
+  "payload": {
+   "step": "plan"
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 7,
+  "event": "plan",
+  "ts": "2026-11-19T13:07:15.213",
+  "payload": {
+   "version": 1,
+   "intent": "plan",
+   "reason": "조건으로 후보 조회 → 상세 → 물가 · 기존 일정 순서",
+   "tasks": [
+    {
+     "id": "p1.t1",
+     "tool": "search_savings_products",
+     "args": {
+      "product_type": "saving",
+      "term_months": 24,
+      "fin_group": "bank",
+      "limit": 12
+     },
+     "expand": null,
+     "fixed": [
+      "product_type",
+      "term_months",
+      "fin_group"
+     ]
+    },
+    {
+     "id": "p1.t2",
+     "tool": "get_product_detail",
+     "args": {
+      "term_months": 24
+     },
+     "expand": {
+      "from": "p1.t1",
+      "top": 4,
+      "skip": 0
+     },
+     "fixed": [
+      "term_months",
+      "product_type"
+     ]
+    },
+    {
+     "id": "p1.t3",
+     "tool": "get_economic_indicators",
+     "args": {},
+     "expand": null,
+     "fixed": []
+    },
+    {
+     "id": "p1.t4",
+     "tool": "get_schedule",
+     "args": {},
+     "expand": null,
+     "fixed": []
+    }
+   ]
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 8,
+  "event": "step.exit",
+  "ts": "2026-11-19T13:07:15.214",
+  "payload": {
+   "step": "plan",
+   "ms": 2,
+   "output": {
+    "tasks": 4,
+    "reason": "조건으로 후보 조회 → 상세 → 물가 · 기존 일정 순서"
+   }
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 9,
+  "event": "step.enter",
+  "ts": "2026-11-19T13:07:15.217",
+  "payload": {
+   "step": "execute"
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 10,
+  "event": "tool.call",
+  "ts": "2026-11-19T13:07:15.219",
+  "payload": {
+   "task": "p1.t1",
+   "tool": "search_savings_products",
+   "args": {
+    "product_type": "saving",
+    "term_months": 24,
+    "fin_group": "bank",
+    "limit": 12
+   },
+   "retry_of": null,
+   "kind": "external"
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 11,
+  "event": "tool.result",
+  "ts": "2026-11-19T13:07:15.220",
+  "payload": {
+   "task": "p1.t1",
+   "tool": "search_savings_products",
+   "ok": true,
+   "ms": 0,
+   "code": null,
+   "summary": "9개 상품 (24개월, bank)"
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 12,
+  "event": "tool.call",
+  "ts": "2026-11-19T13:07:15.222",
+  "payload": {
+   "task": "p1.t2",
+   "tool": "get_product_detail",
+   "args": {
+    "fin_prdt_cd": "SAV-D1",
+    "product_type": "saving",
+    "term_months": 24,
+    "fin_group": "bank"
+   },
+   "retry_of": null,
+   "kind": "external"
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 13,
+  "event": "tool.result",
+  "ts": "2026-11-19T13:07:15.224",
+  "payload": {
+   "task": "p1.t2",
+   "tool": "get_product_detail",
+   "ok": true,
+   "ms": 0,
+   "code": null,
+   "summary": "라온은행 라온 청년도약 적금 기본 4.2% / 최고 5.7%"
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 14,
+  "event": "tool.call",
+  "ts": "2026-11-19T13:07:15.226",
+  "payload": {
+   "task": "p1.t2",
+   "tool": "get_product_detail",
+   "args": {
+    "fin_prdt_cd": "SAV-F1",
+    "product_type": "saving",
+    "term_months": 24,
+    "fin_group": "bank"
+   },
+   "retry_of": null,
+   "kind": "external"
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 15,
+  "event": "tool.result",
+  "ts": "2026-11-19T13:07:15.227",
+  "payload": {
+   "task": "p1.t2",
+   "tool": "get_product_detail",
+   "ok": true,
+   "ms": 0,
+   "code": null,
+   "summary": "주식회사 바다은행 바다 급여 적금 기본 3.25% / 최고 4.15%"
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 16,
+  "event": "tool.call",
+  "ts": "2026-11-19T13:07:15.229",
+  "payload": {
+   "task": "p1.t2",
+   "tool": "get_product_detail",
+   "args": {
+    "fin_prdt_cd": "SAV-B1",
+    "product_type": "saving",
+    "term_months": 24,
+    "fin_group": "bank"
+   },
+   "retry_of": null,
+   "kind": "external"
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 17,
+  "event": "tool.result",
+  "ts": "2026-11-19T13:07:15.231",
+  "payload": {
+   "task": "p1.t2",
+   "tool": "get_product_detail",
+   "ok": true,
+   "ms": 0,
+   "code": null,
+   "summary": "나래은행 나래 목돈만들기 적금 기본 3.2% / 최고 3.9%"
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 18,
+  "event": "tool.call",
+  "ts": "2026-11-19T13:07:15.233",
+  "payload": {
+   "task": "p1.t2",
+   "tool": "get_product_detail",
+   "args": {
+    "fin_prdt_cd": "SAV-C1",
+    "product_type": "saving",
+    "term_months": 24,
+    "fin_group": "bank"
+   },
+   "retry_of": null,
+   "kind": "external"
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 19,
+  "event": "tool.result",
+  "ts": "2026-11-19T13:07:15.234",
+  "payload": {
+   "task": "p1.t2",
+   "tool": "get_product_detail",
+   "ok": true,
+   "ms": 0,
+   "code": null,
+   "summary": "다솜은행 다솜 월복리 적금 기본 3.1% / 최고 3.7%"
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 20,
+  "event": "tool.call",
+  "ts": "2026-11-19T13:07:15.236",
+  "payload": {
+   "task": "p1.t3",
+   "tool": "get_economic_indicators",
+   "args": {},
+   "retry_of": null,
+   "kind": "external"
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 21,
+  "event": "tool.result",
+  "ts": "2026-11-19T13:07:15.238",
+  "payload": {
+   "task": "p1.t3",
+   "tool": "get_economic_indicators",
+   "ok": true,
+   "ms": 0,
+   "code": null,
+   "summary": "물가 2.02% (202610), 기준금리 2.5%"
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 22,
+  "event": "tool.call",
+  "ts": "2026-11-19T13:07:15.239",
+  "payload": {
+   "task": "p1.t4",
+   "tool": "get_schedule",
+   "args": {},
+   "retry_of": null,
+   "kind": "local"
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 23,
+  "event": "tool.result",
+  "ts": "2026-11-19T13:07:15.242",
+  "payload": {
+   "task": "p1.t4",
+   "tool": "get_schedule",
+   "ok": true,
+   "ms": 0,
+   "code": null,
+   "summary": "일정 0건, 월 납입 0원"
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 24,
+  "event": "step.exit",
+  "ts": "2026-11-19T13:07:15.243",
+  "payload": {
+   "step": "execute",
+   "ms": 25,
+   "output": {
+    "ok_results": 7,
+    "fatal": null,
+    "cache_hits": 0
+   }
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 25,
+  "event": "step.enter",
+  "ts": "2026-11-19T13:07:15.246",
+  "payload": {
+   "step": "judge"
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 26,
+  "event": "judge",
+  "ts": "2026-11-19T13:07:15.248",
+  "payload": {
+   "passed": 3,
+   "failed": 0,
+   "unjudged": 1,
+   "best": "주식회사 바다은행 바다 급여 적금",
+   "best_total": 12096814,
+   "rule": "세후 만기수령액 ≥ 목표 · 필요 월납입 ≤ 월예산(기존 납입 제외) · ≤ 상품 한도 · 가입제한 없음"
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 27,
+  "event": "logging.verify",
+  "ts": "2026-11-19T13:07:15.249",
+  "payload": {
+   "verdict": "normal",
+   "findings": [],
+   "previously_reported": 0
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 28,
+  "event": "step.exit",
+  "ts": "2026-11-19T13:07:15.250",
+  "payload": {
+   "step": "judge",
+   "ms": 3,
+   "output": {
+    "candidates": 4,
+    "passed": 3,
+    "failed": 0,
+    "unjudged": 1
+   }
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 29,
+  "event": "step.enter",
+  "ts": "2026-11-19T13:07:15.252",
+  "payload": {
+   "step": "enrich"
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 30,
+  "event": "plan",
+  "ts": "2026-11-19T13:07:15.254",
+  "payload": {
+   "version": 2,
+   "intent": "enrich",
+   "reason": "1순위 추천 은행의 영업점 (보조 정보)",
+   "tasks": [
+    {
+     "id": "e.t1",
+     "tool": "find_bank_branches",
+     "args": {
+      "bank_name": "주식회사 바다은행",
+      "region": "강남"
+     },
+     "fixed": [
+      "region"
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 31,
+  "event": "tool.call",
+  "ts": "2026-11-19T13:07:15.256",
+  "payload": {
+   "task": "e.t1",
+   "tool": "find_bank_branches",
+   "args": {
+    "bank_name": "주식회사 바다은행",
+    "region": "강남"
+   },
+   "retry_of": null,
+   "kind": "external"
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 32,
+  "event": "tool.result",
+  "ts": "2026-11-19T13:07:15.257",
+  "payload": {
+   "task": "e.t1",
+   "tool": "find_bank_branches",
+   "ok": false,
+   "ms": 0,
+   "code": "NO_RESULT",
+   "summary": "NO_RESULT: '강남' 근처에서 주식회사 바다은행 영업점을 찾지 못했습니다."
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 33,
+  "event": "llm.call",
+  "ts": "2026-11-19T13:07:15.259",
+  "payload": {
+   "purpose": "worker_fix",
+   "model": "fake-rule-llm",
+   "ms": 0
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 34,
+  "event": "worker.decision",
+  "ts": "2026-11-19T13:07:15.260",
+  "payload": {
+   "task": "e.t1",
+   "tool": "find_bank_branches",
+   "attempt": 1,
+   "action": "retry",
+   "reason": "공시상 법인명 '주식회사'를 빼면 지점 검색어와 맞을 수 있다",
+   "changed_args": {
+    "bank_name": "바다은행"
+   },
+   "fixed_args": [
+    "region"
+   ],
+   "by": "llm"
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 35,
+  "event": "tool.call",
+  "ts": "2026-11-19T13:07:15.262",
+  "payload": {
+   "task": "e.t1",
+   "tool": "find_bank_branches",
+   "args": {
+    "bank_name": "바다은행",
+    "region": "강남"
+   },
+   "retry_of": "e.t1",
+   "kind": "external"
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 36,
+  "event": "tool.result",
+  "ts": "2026-11-19T13:07:15.264",
+  "payload": {
+   "task": "e.t1",
+   "tool": "find_bank_branches",
+   "ok": true,
+   "ms": 0,
+   "code": null,
+   "summary": "영업점 1곳"
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 37,
+  "event": "step.exit",
+  "ts": "2026-11-19T13:07:15.266",
+  "payload": {
+   "step": "enrich",
+   "ms": 11,
+   "output": {
+    "banks": [
+     "주식회사 바다은행"
+    ]
+   }
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 38,
+  "event": "step.enter",
+  "ts": "2026-11-19T13:07:15.268",
+  "payload": {
+   "step": "respond"
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 39,
+  "event": "llm.call",
+  "ts": "2026-11-19T13:07:15.269",
+  "payload": {
+   "purpose": "compose",
+   "model": "fake-rule-llm",
+   "ms": 0
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 40,
+  "event": "step.exit",
+  "ts": "2026-11-19T13:07:15.271",
+  "payload": {
+   "step": "respond",
+   "ms": 1,
+   "output": {
+    "kind": "plan"
+   }
+  }
+ },
+ {
+  "session_id": "0f0d43b5b0",
+  "run_id": "4df29128",
+  "seq": 41,
+  "event": "session.end",
+  "ts": "2026-11-19T13:07:15.274",
+  "payload": {
+   "answer": "조건을 모두 만족하는 조합 3개를 찾았습니다. 가장 유리한 안은 주식회사 바다은행 바다 급여 적금으로 만기에 약 12,096,814원(세후)을 받을 것으로 계산됩니다.\n\n이 결과는 금융감독원 공시 금리로 계산한 예상",
+   "ms": 80,
+   "llm_calls": 3,
+   "tool_calls": 9,
+   "cache_hits": 0,
+   "replans": 0
+  }
+ }
+]
